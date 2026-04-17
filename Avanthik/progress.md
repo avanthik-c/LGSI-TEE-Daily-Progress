@@ -150,7 +150,8 @@ Conclusion: We successfully simulated a TEE program that adds a hidden secret ke
 
 
 ## 5. Setting Up OPTEE ARM TrustZone using QEMU
-1. Prerequisites
+
+### 1. Prerequisites
 You will need an Ubuntu-based system (WSL2, Native, or VM). Install the required build dependencies:
 
 ```Bash
@@ -165,7 +166,7 @@ python3-crypto python3-cryptography python3-pip python3-pyelftools \
 python3-serial python3-venv rsync unzip uuid-dev xdg-utils xterm zlib1g-dev
 ```
 
-2. Install the Repo Tool
+### 2. Install the Repo Tool
 The OP-TEE project uses the Google repo tool to synchronize all its sub-modules.
 
 ```Bash
@@ -175,7 +176,7 @@ chmod a+x ~/bin/repo
 export PATH=~/bin:$PATH
 ```
 
-3. Fetch the Source Code
+### 3. Fetch the Source Code
 We will target QEMU v8 (ARMv8-A 64-bit). This is the most modern and common simulation target.
 
 ```Bash
@@ -187,14 +188,14 @@ repo init -u https://github.com/OP-TEE/manifest.git -m qemu_v8.xml
 # Sync the code (this takes 10-20 minutes depending on internet speed)
 repo sync -j$(nproc)
 ```
-4. Get the Toolchains
+### 4. Get the Toolchains
 OP-TEE requires specific cross-compilers (Aarch64 and Aarch32) to build the secure and normal world components.
 
 ```Bash
 cd build
 make -j2 toolchains
 ```
-5. Build the Entire System
+### 5. Build the Entire System
 This step compiles the Secure Monitor (TF-A), the Trusted OS (OP-TEE), the Linux Kernel, and the QEMU emulator itself.
 
 ```Bash
@@ -203,7 +204,7 @@ make -j$(nproc)
 ```
 Note: The first build is heavy. If it fails, check if you are missing a dependency from Step 1.
 
-6. Running the Simulation
+### 6. Running the Simulation
 Once the build is finished, you can launch the simulation.
 
 Bash
@@ -218,7 +219,7 @@ Secure World Console: This shows the logs from the Trusted OS (OP-TEE).
 Start the Execution
 In the original terminal where you ran make run, you will see a (qemu) prompt. Type c (for continue) and press Enter. Linux will boot in the Normal World window.
 
-7. Testing the Setup
+### 7. Testing the Setup
 Once Linux has booted in the Normal World console, verify the TEE is working by running the standard test suite:
 
 ```Bash
