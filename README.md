@@ -60,6 +60,7 @@ Format: Use Markdown (.md) for all notes to ensure they are readable on GitHub.
 
 Images: Keep screenshots in a screenshots/ subfolder within your own directory. 
 Link them using: 
+
 `![](screenshots/image_name.png).`
 
 
