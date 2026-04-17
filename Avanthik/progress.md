@@ -221,7 +221,8 @@ In the original terminal where you ran make run, you will see a (qemu) prompt. T
 7. Testing the Setup
 Once Linux has booted in the Normal World console, verify the TEE is working by running the standard test suite:
 
-Bash
+```Bash
 # In the Normal World terminal
-`xtest`
+xtest
 This runs hundreds of tests. If they pass, your TEE is fully functional.
+```
