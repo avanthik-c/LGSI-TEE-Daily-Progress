@@ -143,5 +143,7 @@ make SGX_MODE=SIM
 SGX_MODE=SIM: Performed using normal hardware.
 
 SGX_MODE=HW: Performed using real SGX hardware.
+
 ![](screenshots/image2.png)
+
 Conclusion: We successfully simulated a TEE program that adds a hidden secret key to user input within a secure enclave.
