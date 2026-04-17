@@ -229,4 +229,73 @@ xtest
 This runs hundreds of tests. If they pass, your TEE is fully functional.
 ```
 
-## 6.Making a Simple Program in OPTEE
+## 6.Making a Simple Program in OPTEE (adding secret key and user input)
+We Start by modifying the helloworld program,so change locations
+
+`cd ~/optee-qemu/optee_examples/hello_world`
+-key point:
+Inside that folder, you will find the two files you need to edit to build your custom secret-key program:
+
+-host/main.c (The Normal World program that takes the user's input)
+-ta/hello_world_ta.c (The Secure World program that holds the secret key)
+
+### 1.Modify the Secure Program
+
+modify the file
+`ta/hello_world_ta.c`
+Replace the function inc_value with the below code:
+
+
+```C
+#define SECRET_KEY 42 // Your hidden key!
+
+static TEE_Result inc_value(uint32_t param_types, TEE_Param params[4])
+{
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INOUT,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE,
+						   TEE_PARAM_TYPE_NONE);
+
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+
+	// Grab user input, add the secret key, and return it
+	uint32_t user_input = params[0].value.a;
+	params[0].value.a = user_input + SECRET_KEY;
+
+	return TEE_SUCCESS;
+}
+```
+### 2.Modify the Normal Program 
+
+modify the file
+`host/main.c`
+replace part of the normal world program with the below code:
+
+
+```C
+int user_input;
+	printf("Enter a number to add to the secret key: ");
+	scanf("%d", &user_input);
+
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INOUT, TEEC_NONE,
+					 TEEC_NONE, TEEC_NONE);
+	op.params[0].value.a = user_input;
+
+	printf("Sending %d to Secure World...\n", user_input);
+	res = TEEC_InvokeCommand(&sess, TA_HELLO_WORLD_CMD_INC_VALUE, &op,
+				 &err_origin);
+
+	if (res != TEEC_SUCCESS)
+		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
+			res, err_origin);
+
+	printf("Result returned from Secure World: %d\n", op.params[0].value.a);
+```
+### 3.Build and Run
+ run the following command for build and run
+```bash
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/bin"
+make run
+```
+-note:export only if build error occurs.(need to do it once per session for each terminal)
