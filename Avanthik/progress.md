@@ -125,6 +125,8 @@ int main() {
     sgx_destroy_enclave(eid);
     return 0;
 }```
+
+
 5. Compile and Run
 Use Simulation Mode for WSL environments.
 
