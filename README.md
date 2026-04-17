@@ -8,6 +8,7 @@ Daily Progress Tracker for LGSI TEE project
 
 ## Setting Up the repo 
 Clone the following into your desired folder 
+
 ```git clone https://github.com/avanthik-c/LGSI-TEE-Daily-Progress.git```
 
 ## Steps for modifying (Read Carefully!)
