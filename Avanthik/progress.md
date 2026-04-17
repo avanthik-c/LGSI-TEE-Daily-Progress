@@ -207,8 +207,9 @@ Note: The first build is heavy. If it fails, check if you are missing a dependen
 ### 6. Running the Simulation
 Once the build is finished, you can launch the simulation.
 
-Bash
-```make run```
+```Bash
+make run
+```
 What happens next?
 Two new terminal windows (via xterm) will pop up:
 
