@@ -124,13 +124,13 @@ int main() {
     // 5. Clean up
     sgx_destroy_enclave(eid);
     return 0;
-}```
+}
 
 
 5. Compile and Run
 Use Simulation Mode for WSL environments.
 
-```Bash
+Bash
 # Clean previous builds
 make clean
 
