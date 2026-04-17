@@ -228,3 +228,5 @@ Once Linux has booted in the Normal World console, verify the TEE is working by 
 xtest
 This runs hundreds of tests. If they pass, your TEE is fully functional.
 ```
+
+## 6.Making a Simple Program in OPTEE
