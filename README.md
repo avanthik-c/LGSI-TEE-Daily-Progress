@@ -6,6 +6,10 @@ Daily Progress Tracker for LGSI TEE project
 - Member 3 - (name)
 - Mentor - (name)
 
+## Setting Up the repo 
+Clone the following into your desired folder 
+```git clone https://github.com/avanthik-c/LGSI-TEE-Daily-Progress.git```
+
 ## Steps for modifying (Read Carefully!)
 To keep the repository organized and avoid "Merge Conflicts," please follow these steps every time you work.
 
@@ -25,7 +29,7 @@ When you are ready to upload your work:
 
 ```Bash
 # 1. Stage your changes
-git add .
+git add [Your-Name-Folder]/
 
 # 2. Commit with a meaningful message
 git commit -m "Update progress: [Briefly describe what you added]"
@@ -55,7 +59,8 @@ Delete the markers, keep the correct text, save the file, and then add, commit, 
 Format: Use Markdown (.md) for all notes to ensure they are readable on GitHub.
 
 Images: Keep screenshots in a screenshots/ subfolder within your own directory. 
-Link them using: ![](screenshots/image_name.png).
+Link them using: 
+`![](screenshots/image_name.png).`
 
 
 ## Mentor Feedback
