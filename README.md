@@ -1,10 +1,10 @@
 # LGSI-TEE-Daily-Progress
 Daily Progress Tracker for LGSI TEE project 
 ## Team Members
-- Member 1 - Avanthik
-- Member 2 - (name)
-- Member 3 - (name)
-- Mentor - (name)
+- Member 1 - Avanthik C
+- Member 2 - Amith K.S
+- Member 3 - Sathya Prathmesh K J
+- Mentor - Jevitha K.P
 
 ## Setting Up the repo 
 Clone the following into your desired folder 
