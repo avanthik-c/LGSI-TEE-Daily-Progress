@@ -73,6 +73,13 @@ Actual separate, dedicated microprocessors built right into the motherboard or C
 
 ---
 
+## References
+
+- https://en.wikipedia.org/wiki/Trusted_execution_environment
+- https://confidentialcomputing.io/about
+
+---
+
 # Exploration Report: ARM TrustZone, OP-TEE Architecture, and Simulator Deployment
 
 **By Amith K S**
@@ -83,7 +90,7 @@ Actual separate, dedicated microprocessors built right into the motherboard or C
 
 TrustZone is the name of the Security architecture in the Arm A-profile architecture. First introduced in Armv6K, TrustZone is also supported in Armv7-A and Armv8-A. TrustZone provides two execution environments with system-wide hardware enforced isolation between them.
 
-![ARM TrustZone Architecture Diagram](arm_trustzone_architecture.png)
+![ARM TrustZone Architecture Diagram](screenshots/arm_trustzone_architecture.png)
 
 The **Normal World** runs a rich software stack. This software stack typically includes a large application set, a complex operating system like Linux, and possibly a hypervisor. Such software stacks are large and complex. While efforts can be made to secure them, the size of the attack surface means that they are more vulnerable to attack.
 
@@ -93,7 +100,8 @@ The **Trusted World** runs a smaller and simpler software stack, which is referr
 
 To change Security state, in either direction, execution must pass through EL3.
 
-![Security States Transition Diagram (EL3)](security_states_el3.png)
+![Security States Transition Diagram (EL3)](screenshots/security_states_el3.png)
+![Passing Through EL3](screenshots/security_states_el3_jump.png)
 
 ## Virtual Address Space
 
@@ -104,15 +112,16 @@ TrustZone gives the processor completely separate, physically isolated maps depe
 - **NS.EL1:0x8000 (Non-Secure Map):** Your standard Linux OS is running. It asks to read address `0x8000`. The processor knows it is in the Non-Secure state, so it grabs the **Non-Secure Map**. The map says, "Put them in physical memory slot A."
 - **S.EL1:0x8000 (Secure Map):** The processor flips into the Secure State to run OP-TEE. OP-TEE asks to read address `0x8000`. The processor grabs the **Secure Map**. Because this is a totally different map, it points to physical memory slot B.
 
+
 ## Physical Address Space
 
 While in Non-secure state, virtual addresses always translate to Non-secure physical addresses. This means that software in Non-secure state can only see Non-secure resources, but can never see Secure resources.
 
-![Non-Secure Physical Address Space Diagram](non_secure_physical_address_space.png)
+![Non-Secure Physical Address Space Diagram](screenshots/non_secure_physical_address_space.png)
 
 While in Secure state, software can access both the Secure and Non-secure physical address spaces. The NS bit in the translation table entries controls which physical address space a block or page of virtual memory translates to.
 
-![Secure Physical Address Space Diagram](secure_physical_address_space.png)
+![Secure Physical Address Space Diagram](screenshots/secure_physical_address_space.png)
 
 ---
 
@@ -128,6 +137,31 @@ OP-TEE is designed primarily to rely on the Arm TrustZone technology as the unde
 
 ## References
 
-- https://en.wikipedia.org/wiki/Trusted_execution_environment
-- https://confidentialcomputing.io/about
+- https://optee.readthedocs.io/en/latest/
+- https://developer.arm.com/documentation/100690/0200/ARM-TrustZone-technology
 
+---
+
+
+## QEMU Simulator  Running optee_example_hello_world
+
+To test the TEE setup, the `optee_example_hello_world` example was run on a QEMU simulator with OP-TEE.
+
+The simulator boots two separate terminal windows  the **Secure World** and the **Normal World**  reflecting TrustZone's actual hardware isolation.
+
+**Normal World output:**
+- The `optee_example_hello_world` binary was executed from the REE (Normal World).
+- It invoked the Trusted Application (TA) to increment a value: `Invoking TA to increment 42`
+- The TA returned the result: `TA incremented value to 43`
+
+**Secure World output:**
+- The TA lifecycle was fully visible  `TA_CreateEntryPoint`, `TA_OpenSessionEntryPoint`, `inc_value`, and `TA_DestroyEntryPoint` were all called in sequence.
+- The TA printed `Hello World!` from inside the Secure World.
+- Got value `42` from the Normal World, incremented it to `43`, and returned it.
+- Session was cleanly destroyed after execution.
+
+This confirms that the Normal World successfully communicated with a Trusted Application running in the Secure World via OP-TEE on QEMU.
+
+![QEMU OP-TEE Hello World Output](screenshots/optee_example_hello_world.png)
+
+---
