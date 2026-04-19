@@ -90,7 +90,7 @@ Actual separate, dedicated microprocessors built right into the motherboard or C
 
 TrustZone is the name of the Security architecture in the Arm A-profile architecture. First introduced in Armv6K, TrustZone is also supported in Armv7-A and Armv8-A. TrustZone provides two execution environments with system-wide hardware enforced isolation between them.
 
-![ARM TrustZone Architecture Diagram](screenshots/arm_trustzone_architecture.png)
+![ARM TrustZone Architecture Diagram](screenshots\arm_trustzone_architecture.jpg)
 
 The **Normal World** runs a rich software stack. This software stack typically includes a large application set, a complex operating system like Linux, and possibly a hypervisor. Such software stacks are large and complex. While efforts can be made to secure them, the size of the attack surface means that they are more vulnerable to attack.
 
@@ -100,8 +100,8 @@ The **Trusted World** runs a smaller and simpler software stack, which is referr
 
 To change Security state, in either direction, execution must pass through EL3.
 
-![Security States Transition Diagram (EL3)](screenshots/security_states_el3.png)
-![Passing Through EL3](screenshots/security_states_el3_jump.png)
+![Security States Transition Diagram (EL3)](screenshots\security_states_el3.jpg)
+![Passing Through EL3](screenshots\security_states_el3_jump.jpg)
 
 ## Virtual Address Space
 
@@ -117,11 +117,11 @@ TrustZone gives the processor completely separate, physically isolated maps depe
 
 While in Non-secure state, virtual addresses always translate to Non-secure physical addresses. This means that software in Non-secure state can only see Non-secure resources, but can never see Secure resources.
 
-![Non-Secure Physical Address Space Diagram](screenshots/non_secure_physical_address_space.png)
+![Non-Secure Physical Address Space Diagram](screenshots\non_secure_physical_address_space.jpg)
 
 While in Secure state, software can access both the Secure and Non-secure physical address spaces. The NS bit in the translation table entries controls which physical address space a block or page of virtual memory translates to.
 
-![Secure Physical Address Space Diagram](screenshots/secure_physical_address_space.png)
+![Secure Physical Address Space Diagram](screenshots\secure_physical_address_space.jpg)
 
 ---
 
@@ -162,6 +162,6 @@ The simulator boots two separate terminal windows  the **Secure World** and the 
 
 This confirms that the Normal World successfully communicated with a Trusted Application running in the Secure World via OP-TEE on QEMU.
 
-![QEMU OP-TEE Hello World Output](screenshots/optee_example_hello_world.png)
+![QEMU OP-TEE Hello World Output](screenshots\optee_example_hello_world.jpg)
 
 ---
