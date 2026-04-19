@@ -162,6 +162,6 @@ The simulator boots two separate terminal windows  the **Secure World** and the 
 
 This confirms that the Normal World successfully communicated with a Trusted Application running in the Secure World via OP-TEE on QEMU.
 
-![QEMU OP-TEE Hello World Output](screenshots/optee_example_hello_world.jpg)
+![QEMU OP-TEE Hello World Output](screenshots/optee_example_hello_world.png)
 
 ---
