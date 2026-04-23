@@ -2,7 +2,7 @@
 Daily Progress Tracker for LGSI TEE project 
 ## Team Members
 - Member 1 - Avanthik C
-- Member 2 - Amith K.S
+- Member 2 - Amith K S
 - Member 3 - Sathya Prathmesh K J
 - Mentor - Jevitha K.P
 
