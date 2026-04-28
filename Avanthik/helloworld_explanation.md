@@ -397,3 +397,36 @@ void TA_DestroyEntryPoint(void)
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 make run
+
+### 2 host app talk to same TA
+
+App A Connects 
+    NW (App A): TEEC_InitializeContext()
+    NW (App A): TEEC_OpenSession()
+    SW (TA): TA_CreateEntryPoint() (Triggered because the TA was not in memory, Global memory is allocated)
+    SW (TA): TA_OpenSessionEntryPoint()
+    (App A gets its session ID)
+
+App B Connects 
+    NW (App B): TEEC_InitializeContext()
+    NW (App B): TEEC_OpenSession()
+    SW (TA): TA_OpenSessionEntryPoint() ( Create was skipped, The TA is already alive )
+    (App B gets a different session ID)
+
+( Both apps can now use TEEC_InvokeCommand independently )
+
+App A Disconnects 
+    NW (App A): TEEC_CloseSession()
+    SW (TA): TA_CloseSessionEntryPoint()
+    (Cleans up App A's specific session memory).
+    NW (App A): TEEC_FinalizeContext()
+    (App A completely disconnects, but OP-TEE ignores it because App B is still inside).
+
+App B Disconnects (The Last Customer)
+    NW (App B): TEEC_CloseSession()
+    SW (TA): TA_CloseSessionEntryPoint()
+    (Cleans up App B's specific session memory).
+    NW (App B): TEEC_FinalizeContext()
+    (App B disconnects. OP-TEE checks the active session count: 0).
+    SW (TA): TA_DestroyEntryPoint()
+    (The OS triggers full closure. Global memory is freed, and the TA is removed from Secure RAM).
