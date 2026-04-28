@@ -1,5 +1,5 @@
 # TEE Notes & Intel SGX Simulation
-
+//1,2,3,4,6,7,8
 ## 1. Theory
 A Trusted Execution Environment (TEE) separates the hardware components into two isolated regions:
 * **Secondary Memory:** Secure storage for master keys, trusted OS kernel, and core system apps.
@@ -43,7 +43,7 @@ If a Trusted Application reads data directly from unsecure memory, it risks:
 **Prevention:** Always copy Normal World data into Secure Memory and verify it before execution.
 
 ---
-
+// 9
 ## 4. Setting Up Intel SGX
 
 **Aim:** Create a secure program using the Intel SGX simulator.
@@ -61,6 +61,8 @@ cd SecureMasker
 ![](screenshots/image1.png)
 Code Implementation
 Modify Enclave/Enclave.edl (Interface Definition):
+
+//10,11
 
 ```C++
 enclave {
@@ -148,7 +150,7 @@ SGX_MODE=HW: Performed using real SGX hardware.
 
 Conclusion: We successfully simulated a TEE program that adds a hidden secret key to user input within a secure enclave.
 
-
+//13
 ## 5. Setting Up OPTEE ARM TrustZone using QEMU
 
 ### 1. Prerequisites
@@ -210,6 +212,7 @@ Once the build is finished, you can launch the simulation.
 ```Bash
 make run
 ```
+//14,15
 What happens next?
 Two new terminal windows (via xterm) will pop up:
 
@@ -240,7 +243,7 @@ Inside that folder, you will find the two files you need to edit to build your c
 -ta/hello_world_ta.c (The Secure World program that holds the secret key)
 
 ### 1.Modify the Secure Program
-
+// 16,17
 modify the file
 `ta/hello_world_ta.c`
 Replace the function inc_value with the below code:
@@ -299,3 +302,4 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:~/bin"
 make run
 ```
 -note:export only if build error occurs.(need to do it once per session for each terminal)
+
