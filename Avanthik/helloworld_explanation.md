@@ -224,3 +224,93 @@ Normal World: TEEC_FinalizeContext()
 Action: Closes the Linux file descriptor.
 State: Host App finishes and cleanly exits.
 Secure World: Unaffected (The TA was already wiped from Secure RAM).
+
+## Host Program
+```c
+#include <err.h>
+#include <stdio.h>
+#include <string.h>
+#include <tee_client_api.h>  //optee_client
+#include <hello_world_ta.h>
+
+int main(void){
+    //structures
+    TEEC_Result res;
+	TEEC_Context ctx;
+	TEEC_Session sess;
+	TEEC_Operation op; //region of host memory that is to be copied to shared memory region
+	TEEC_UUID uuid = TA_HELLO_WORLD_UUID; //need to replace macro accordingly
+
+	uint32_t err_origin;
+
+    res = TEEC_InitializeContext(NULL, &ctx);
+	if (res != TEEC_SUCCESS) errx(1, "TEEC_InitializeContext failed with code 0x%x", res);
+    // changeable
+    // NULL- default tee (here optee)
+    //     can put tee1,tee2 etc depending on the tee needed
+    
+	res = TEEC_OpenSession(&ctx,&sess,&uuid,TEEC_LOGIN_PUBLIC,NULL(connection data),NULL(operation),&err_origin);
+    //    TEEC_OpenSession(TEEC_Context *context,TEEC_Session *session,const TEEC_UUID *destination,
+    // uint32_t connectionMethod,const void *connectionData,TEEC_Operation *operation,uint32_t *returnOrigin);
+	
+    // changeable
+    // &uuid - changes according to the TA we are opening
+    // TEEC_LOGIN_PUBLIC (The Bouncer) - access control mechanism
+    //     TEEC_LOGIN_PUBLIC means any program on Linux can knock on the TAs door. 
+    //     TEEC_LOGIN_USER Only a specific Linux user (like the root user) is allowed to open the session.
+    //     TEEC_LOGIN_GROUP Only programs belonging to a specific Linux user group can access the TA.
+    // operation - pass payload at this stage
+    // connection data - pass data regarding connection data
+    if (res != TEEC_SUCCESS) errx(1, "TEEC_Opensession failed with code 0x%x origin 0x%x",res, err_origin);
+	memset(&op, 0, sizeof(op)); // clean the region,setting it all 0s
+    
+    int user_input;
+ 	printf("Enter a number to add to the secret key: ");
+ 	scanf("%d", &user_input);
+    // changeable 
+    // change this accordingly for user interaction
+
+    op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INOUT, TEEC_NONE, TEEC_NONE, TEEC_NONE);
+    // changeable
+    // we have 4 slots to assign 2 types of payload - value or memory address
+    // we can have them as input(just send value to ta) ,output(just return value from ta) ,inout(modify the input value and return)
+    // following macros
+    // value:
+    //  TEEC_VALUE_INPUT
+    //  TEEC_VALUE_OUTPUT
+    //  TEEC_VALUE_INOUT
+    //     op.params[0].value.a 
+    //     op.params[0].value.b ([0] is the slot index)
+    //  one value slot can store two 32-bit integer (.a and .b)
+    // memory address:    
+    //  TEEC_MEMREF_TEMP_INPUT
+    //  TEEC_MEMREF_TEMP_OUTPUT
+    //  TEEC_MEMREF_TEMP_INOUT
+    //     op.params[0].memref.buffer ( starting address)
+    //     op.params[0].memref.size  (size of block)
+    //  one memory address slot should be assigned starting address and size of block
+    // TEEC_NONE - no value is stored
+
+    op.params[0].value.a = user_input; // .b not used here, so to prevent garbage value from getting sent, we did memset earlier
+    res = TEEC_InvokeCommand(&sess, COMMAND_ID_MACRO, &op,&err_origin);// !!!!!!!!!!!!need to modify!!!!!!!!!!
+    // changeable
+    // &sess - give the session variable of which session we need
+    // TA_HELLO_WORLD_CMD_ADD_SK - command id macro,can define macro in header file/give direct number
+    // &op - the payload to be copied
+    // &err_origin - Error Origin (where the error happened)
+    //     possible macros:
+    //      TEEC_ORIGIN_API (The Host Library)
+    //      TEEC_ORIGIN_COMMS (The Linux Kernel Driver)
+    //      TEEC_ORIGIN_TEE (The Secure OS)
+    //      TEEC_ORIGIN_TRUSTED_APP (Your Secure Code)
+    TEEC_CloseSession(&sess);
+    TEEC_FinalizeContext(&ctx);
+    return 0;
+}
+```
+TEEC_InitializeContext()
+TEEC_OpenSession() -> TA_CreateEntryPoint() (once for each program running)
+                   -> TA_OpenSessionEntryPoint() (others run rach time these function are called)
+TEEC_InvokeCommand() -> TA_InvokeCommandEntryPoint()
+TEEC_CloseSession() -> TA_CloseSessionEntryPoint()
+TEEC_FinalizeContext()
