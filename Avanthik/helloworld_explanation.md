@@ -127,4 +127,25 @@ System Call Table
 ---------------------------------------------------
 | 1           |      0x11322                      |
 ---------------------------------------------------
+
+OPTEE driver is one such code in the System call table
+OPTEE driver structure:
+1) Validity Check:
+    checks if your Host app is allowed to make this request, if the Session ID is valid, 
+    and if the parameters (the rules you set with TEEC_PARAM_TYPES) make sense. 
+    If your app tries to do something illegal, the driver rejects the request right here, 
+    and the Secure World is never bothered.
+2) Memory Translation:
+    The Register B contents are moved to the Shared region between secure and normal RAM
+    in a standardized form
+3) Store in Registers:
+    The Driver stores the Function ID in one register and shared memory address in another register
+
+    "Function ID: Single TA itself will have many functions in its program,we decide which function to run
+    using Function ID"
+
+4) smc Assembly Instruction executed :
+    ns-bit flipped to 0
+    When ns-bit is 0 immediately secure kernel takes control(similar to how kernel space taked control on mode bit =0)
+    now the OPTEE kernel takes over
 ```
