@@ -99,4 +99,32 @@ TEEC_Result TEEC_OpenSession(
 
 2. ioctl() (Input/Output Control) syscall and Pass UUID (Pass the UUID using the pipeline) 
     into the shared region
-    
+
+### TEEC_InvokeCommand Function call
+- Trigger Software Interrupt(EL0->EL1) ,runs
+- Puts the op.params[0] array to the common region of the RAM
+- eg: res = TEEC_InvokeCommand(&sess, TA_HELLO_WORLD_CMD_INC_VALUE, &op &err_origin);
+ 
+### smc Instruction
+### System Call Working
+when we call a system call,
+1.The task we need is stored in a register (suppose register X8)
+2.The datas required for the task (operands,memory addresses,etc...) are stored in another 
+  register (suppose register B)
+3.The assembly instruction (svc or smc) is executed, 
+  switches the mode bit to 0 (Kernel Takes over)
+4.The kernel saves the state to its pcb
+5.The kernel reads the instruction from the register(Register X8)
+6.The kernel checks the instruction number with the secure System Call Table and executes the code 
+  at that  memory address, there may be input parameters required for some codes, which will be taken 
+  from Register B
+7.Cases such as i/o read/write and such may need the memory address of the place to read/write from/to
+
+
+```plain
+System Call Table
+| Instruction | Memory Address of the instruction |
+---------------------------------------------------
+| 1           |      0x11322                      |
+---------------------------------------------------
+```
