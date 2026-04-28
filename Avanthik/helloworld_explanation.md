@@ -314,3 +314,86 @@ TEEC_OpenSession() -> TA_CreateEntryPoint() (once for each program running)
 TEEC_InvokeCommand() -> TA_InvokeCommandEntryPoint()
 TEEC_CloseSession() -> TA_CloseSessionEntryPoint()
 TEEC_FinalizeContext()
+
+## TA Program
+```c
+#include <tee_internal_api.h>
+#include <tee_internal_api_extensions.h>
+
+#include <hello_world_ta.h>
+#define SECRET_KEY 42
+
+TEE_Result TA_CreateEntryPoint(void)
+{
+	DMSG("has been called");
+	return TEE_SUCCESS;
+}
+
+TEE_Result TA_OpenSessionEntryPoint(uint32_t param_types,TEE_Param __unused params[4],void __unused **sess_ctx)
+{
+	uint32_t exp_param_types=TEE_PARAM_TYPES(TEE_PARAM_TYPE_NONE,TEE_PARAM_TYPE_NONE,
+											TEE_PARAM_TYPE_NONE,TEE_PARAM_TYPE_NONE);//expecting no payload
+	DMSG("has been called");
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+	IMSG("hello world called in secureworld terminal\n");
+	return TEE_SUCCESS;
+}
+
+static TEE_Result add_sk(uint32_t param_types, TEE_Param params[4])
+{
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INOUT,TEE_PARAM_TYPE_NONE,
+						   						TEE_PARAM_TYPE_NONE,TEE_PARAM_TYPE_NONE);//expecting inout payload
+
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+	IMSG("Got value: %u from NW", params[0].value.a);
+	uint32_t user_input = params[0].value.a;
+	params[0].value.a = user_input + SECRET_KEY;
+	IMSG("change value to: %u", params[0].value.a);
+
+
+	return TEE_SUCCESS;
+}
+
+static TEE_Result dec_value(uint32_t param_types, TEE_Param params[4])
+{
+	uint32_t exp_param_types = TEE_PARAM_TYPES(TEE_PARAM_TYPE_VALUE_INOUT,TEE_PARAM_TYPE_NONE,
+											   TEE_PARAM_TYPE_NONE,TEE_PARAM_TYPE_NONE);
+
+	DMSG("has been called");
+	if (param_types != exp_param_types)
+		return TEE_ERROR_BAD_PARAMETERS;
+	IMSG("Got value: %u from NW", params[0].value.a);
+	params[0].value.a--;
+	IMSG("Decrease value to: %u", params[0].value.a);
+	return TEE_SUCCESS;
+}
+
+TEE_Result TA_InvokeCommandEntryPoint(void __unused *sess_ctx,uint32_t cmd_id, uint32_t param_types,TEE_Param params[4])
+{
+	switch (cmd_id) {
+	case TA_HELLO_WORLD_CMD_ADD_SK:
+		return add_sk(param_types, params);
+	case TA_HELLO_WORLD_CMD_DEC_VALUE:
+		return dec_value(param_types, params);
+	default:
+		return TEE_ERROR_BAD_PARAMETERS;
+	}
+}
+
+void TA_CloseSessionEntryPoint(void __unused *sess_ctx)
+{
+	IMSG("Goodbye!\n");
+}
+
+void TA_DestroyEntryPoint(void)
+{
+	DMSG("has been called");
+}
+
+
+```
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+make run
