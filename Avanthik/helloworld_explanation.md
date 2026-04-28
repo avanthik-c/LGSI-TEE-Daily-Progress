@@ -149,3 +149,78 @@ OPTEE driver structure:
     When ns-bit is 0 immediately secure kernel takes control(similar to how kernel space taked control on mode bit =0)
     now the OPTEE kernel takes over
 ```
+
+### Terms and Macros
+TEEC_SUCCESS vs TEE_SUCCESS
+TEEC_SUCCESS -> used int normal world, simply the error code 0x00000000
+TEE_SUCCESS -> used in secure world, signals OPTEE kernel of TA execution completion
+## Function call Timeline
+
+TEEC_InitializeContext()
+TEEC_OpenSession() -> TA_CreateEntryPoint()
+TEEC_InvokeCommand() -> TA_InvokeCommandEntryPoint()
+TEEC_CloseSession() -> TA_CloseSessionEntryPoint()
+TEEC_FinalizeContext()
+
+
+### Phase 1: Establishing the Pipeline
+Normal World: TEEC_InitializeContext()
+Action: Opens the Linux file descriptor (/dev/tee0).
+State: Host App is RUNNING.
+Secure World: Asleep/Unaware.
+-------------------------------------------
+### Phase 2: Booting the Vault & Connecting
+Normal World: TEEC_OpenSession()
+Action: Packages the UUID, fires the smc instruction.
+State: Host App PAUSES (Execution is physically suspended by the CPU).
+
+[ BOUNDARY CROSSING to Secure World ]
+
+Secure World: TA_CreateEntryPoint()
+Action: The TA is loaded into Secure RAM. This function runs only once to do global setup (like allocating memory).
+Secure World: TA_OpenSessionEntryPoint()
+Action: Allocates tracking variables for this specific Host connection. Returns TEE_SUCCESS.
+
+[ BOUNDARY CROSSING to Normal World ]
+
+Normal World: TEEC_OpenSession finishes.
+State: Host App WAKES UP and resumes execution.
+--------------------------
+### Phase 3: The Execution
+Normal World: Host code runs printf and scanf to get the user_input.
+Normal World: TEEC_InvokeCommand()
+Action: Packages the data into Shared Memory, fires the smc instruction.
+State: Host App PAUSES.
+
+[ BOUNDARY CROSSING to Secure World ]
+
+Secure World: TA_InvokeCommandEntryPoint()
+Action: The Switchboard receives the Command ID, routes it to your specific math function, modifies the Shared Memory, and returns TEE_SUCCESS.
+
+[ BOUNDARY CROSSING to Normal World ]
+
+Normal World: TEEC_InvokeCommand finishes.
+State: Host App WAKES UP and resumes execution. It pulls the result from Shared Memory and prints it.
+-----------------------------------
+### Phase 4: Tearing Down the Vault
+Normal World: TEEC_CloseSession()
+Action: Tells OP-TEE to drop the secure tracker, fires the smc instruction.
+State: Host App PAUSES.
+
+[ BOUNDARY CROSSING to Secure World ]
+
+Secure World: TA_CloseSessionEntryPoint()
+Action: Cleans up variables specific to that Host connection.
+Secure World: TA_DestroyEntryPoint()
+Action: Because this was the only active session, OP-TEE is preparing to kick the TA out of Secure RAM. This function runs only once to free global memory.
+
+[ BOUNDARY CROSSING to Normal World ]
+
+Normal World: TEEC_CloseSession finishes.
+State: Host App WAKES UP and resumes execution.
+--------------------------
+### Phase 5: Final Cleanup
+Normal World: TEEC_FinalizeContext()
+Action: Closes the Linux file descriptor.
+State: Host App finishes and cleanly exits.
+Secure World: Unaffected (The TA was already wiped from Secure RAM).
