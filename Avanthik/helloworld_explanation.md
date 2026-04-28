@@ -66,3 +66,37 @@ TEEC_Result TEEC_InitializeContext(
     the location to connect is decided based on the `name` parameter
     if we pass tee1 in `name` then `/dev/tee1` will be connected
     `open()` syscall on Linux OP-TEE driver file (create a pipeline to driver)
+
+### TEEC_OpenSession
+```c
+TEEC_Result TEEC_OpenSession(
+    TEEC_Context *context,
+    TEEC_Session *session,
+    const TEEC_UUID *destination,
+    uint32_t connectionMethod,
+    const void *connectionData,
+    TEEC_Operation *operation,
+    uint32_t *returnOrigin
+);
+```
+1. `context` - check the file descriptor we made earlier
+
+2.  `session` - an empty struct we pass
+    ```c
+    typedef struct {
+        /* A pointer back to the pipeline this session belongs to */
+        TEEC_Context *ctx; 
+        
+        /* The actual unique tracker ID returned by the Secure World */
+        uint32_t session_id; 
+    } TEEC_Session;
+    ```
+    after function execution,filled with the context and the unique session id
+
+    
+1. Driver requests the Normal Kernel to Assign contiguous block of RAM
+    to be used as shared region accessible by both the Non-Secure and Secure worlds
+
+2. ioctl() (Input/Output Control) syscall and Pass UUID (Pass the UUID using the pipeline) 
+    into the shared region
+    
