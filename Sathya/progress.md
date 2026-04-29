@@ -201,3 +201,129 @@ The security features provided by TrustZone and OP-TEE include hardware-level is
 In practical scenarios, this architecture is widely used in applications such as mobile payments, digital rights management (DRM), biometric authentication, and secure boot processes. For example, when a user enters a PIN, the Client Application sends the PIN to a Trusted Application, which verifies it securely. The PIN never leaves the Secure World, ensuring maximum confidentiality.
 
 In summary, Arm TrustZone provides the hardware foundation for secure execution by isolating the system into two worlds, while OP-TEE builds on top of it to provide a complete secure operating environment. Applications are divided into Client Applications in the Normal World and Trusted Applications in the Secure World, with controlled communication between them. This architecture ensures that sensitive operations are always performed in a protected environment, maintaining the integrity and security of the system.
+
+---
+# LibTomCrypt crypto library
+
+## What is LibTomCrypt?
+
+LibTomCrypt is a lightweight, modular cryptographic library written in the C programming language. It provides a collection of cryptographic algorithms that developers can use to build secure applications.
+
+Unlike large frameworks, LibTomCrypt does not implement full security protocols. Instead, it offers the fundamental building blocks of cryptography, such as encryption algorithms, hash functions, and random number generators. These building blocks can be combined to create complete secure systems.
+
+The design of LibTomCrypt focuses on simplicity, flexibility, and portability. Because of this, it is widely used in embedded systems, research projects, and environments where full-scale libraries like OpenSSL may be too heavy.
+
+---
+
+## Why LibTomCrypt?
+
+The main purpose of LibTomCrypt is to give developers direct control over cryptographic operations. Rather than hiding complexity, it exposes how cryptographic primitives work. This makes easy use of learning cryptographic algorithms and concepts,Building of custom security mechanisms and working in constrained encironments. In simple terms, LibTomCrypt acts like a toolkit rather than a ready-made solution.
+
+---
+
+## Key Features
+
+- ### Modularity
+    The library is divided into separate components such as ciphers, hashes, and public-key systems. Developers can include only the parts they need.
+
+- ### Portabiliy 
+    Since its writtern in C , making it compatible with multiple platforms including Linux, Windows, and other embedded systems.
+
+- ### Algorithm variety
+    This library supports a wide range of cryptographic algorithms.
+
+- ### Flexible Design
+    The internal structure allows developers to easily add or modify algorithms without changing the entire system.
+
+---
+
+## Structure of LibTomCryp
+
+LibTomCrypt is designed in a modular way,each cryptographic feature is implemented separately and all modules are connected through interface.
+
+```c
+[ Ciphers ]   [ Hashes ]   [ PRNG ]   [ Public Key ]
+        \        |        / 
+         ---- Common Interface ----
+```
+
+---
+
+## Main Modules
+
+### 1. Ciphers
+This module contains symmetric encryption algorithms like AES and DES.It contains Key setup function , Encrypt function and a decrypt function.
+
+```c
+aes_setup(...)
+aes_ecb_encrypt(...)
+aes_done(...)
+```
+
+### 2. Hashes
+This module provides hash functions such as MD5, SHA-1, and SHA-256, which are used for data integrity and verification.Each hash has **init( )** -> starts hashing , **process( )** -> feeds data and **done( )**  -> produces the output.
+
+```c
+sha256_init()
+sha256_process()
+sha256_done()
+```
+
+### 3. PRNG (Pseudo-Random Number Generators)
+
+This module generates secure random numbers required for cryptographic operations like key generation.
+
+### 4. Public Key
+
+This module includes asymmetric algorithms such as RSA and ECC, used for encryption, decryption, and digital signatures.
+
+
+### 5. Modes
+
+Block ciphers like AES cannot be used directly for large data.Modes define how encryption is applied.
+    Eg: ECB (simple, not secure),CBC (chaining),CTR (counter-based),GCM (secure + authentication).
+
+---
+
+## Companion Library
+
+LibTomCrypt often works with LibTomMath, which provides support for large integer arithmetic required in public-key cryptography.Without LibTomMath, cryptographic algorithms like RSA and ECC cannot function properly.
+
+---
+
+## Example of Hashing
+
+This following code explains us that how a SHA-256 hash is generated:
+
+
+```c
+hash_state md;
+unsigned char out[32];
+
+sha256_init(&md);
+sha256_process(&md, "hello", 5);
+sha256_done(&md, out);
+```
+Hashing follows a 3 step structure library
+- Inatializatiion
+- Data is processed 
+- Final hash is generated as output.
+
+ --- 
+
+ ## Advantages
+
+- It is lightweight and suitable for embedded systems
+- It provides fine-grained control over cryptographic operations
+- It is easy to study and understand compared to larger libraries
+- It allows experimentation with different algorithms
+
+---
+
+## Limitations
+
+- It does not provide high-level protocols like SSL/TLS
+- It requires the developer to make correct security choices
+- Incorrect usage can lead to vulnerabilities
+
+---
