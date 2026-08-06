@@ -69,11 +69,6 @@ earlier layer working fine.
   real hardware) where you can build and boot `optee_os`, and where you can
   build and deploy example TAs (e.g. `optee_examples`). This guide assumes
   that environment already exists and works.
-- **This is for research, coursework, and learning the internals — not for
-  production cryptography.** None of this changes OP-TEE's security
-  properties; you're purely extending which algorithm IDs the dispatch
-  layers recognize. Whatever cipher math you plug in is exactly as secure
-  (or insecure) as you make it.
 
 ---
 
